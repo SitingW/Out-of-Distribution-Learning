@@ -19,9 +19,11 @@
 %\date{}
 \maketitle
 
-\section{One?}
-Assume a classification problem. Given $\cX\in {\bbR}^d $
-Assume for PAC-larnable cases, there is no misspecification error. If we have a function class $\cF$ with non linear functions.
+\section{Problem}
+Fix a concept class $ \cC $,
+given $\cX,  \subset {\bbR}^d$, $S=(X_1, X_2,\cdots, X_n)$ are i.i.d.samples from distribution $P_{\cX}$. there exists $f_*\in \cC$ 
+such that  $ Y_i = f_*(X_i)$. \\
+Now given a new sample $X'$, where $X'$ is not an element from sample set $S$. How confident can we say $f_*$ predicts the correct label of $X'$?
 
 \bibliography{all}
 
