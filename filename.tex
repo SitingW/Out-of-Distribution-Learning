@@ -21,9 +21,13 @@
 
 \section{Problem}
 Fix a concept class $ \cC $,
-given $\cX,  \subset {\bbR}^d$, $S=(X_1, X_2,\cdots, X_n)$ are i.i.d.samples from distribution $P_{\cX}$. there exists $f_*\in \cC$ 
-such that  $ Y_i = f_*(X_i)$. \\
-Now given a new sample $X'$, where $X'$ is not an element from sample set $S$. How confident can we say $f_*$ predicts the correct label of $X'$?
+and let $\cX  \subset {\bbR}^d$. Suppose we have a sample set $S=(X_1, X_2,\cdots, X_n)$ consisting of i.i.d.samples drawn from a distribution $P_{\cX}$. Assume there exists $f_*\in \cC$ 
+such that  for each sample $X_i$, the label $Y_i$ satisfies $ Y_i = f_*(X_i)$. \\
+Given a new sample $X'$, where $X'\notin S$. How confident can we be that $f_*$ predicts the correct label for $X'$?
+
+\begin{example}
+Let 
+\end{example}
 
 \bibliography{all}
 
