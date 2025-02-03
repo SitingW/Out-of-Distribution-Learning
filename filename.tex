@@ -25,8 +25,13 @@ and let $\cX  \subset {\bbR}^d$. Suppose we have a sample set $S=(X_1, X_2,\cdot
 such that  for each sample $X_i$, the label $Y_i$ satisfies $ Y_i = f_*(X_i)$. \\
 Given a new sample $X'$, where $X'\notin S$. How confident can we be that $f_*$ predicts the correct label for $X'$?
 
-\begin{example}
-Let 
+\begin{example}[Linear Regression]
+Let $\cF$ be a function class for linear functions such that $\cF = \{f: X \mapsto  \bip{w, X} |  w\in {\bbR}^d\}$. Suppose we have a set of independent samples $S = (X_1, X_2, \cdots, X_n)$. Assume there exists $f_*(\cdot ) = \bip{w_*, \cdot }$, such that for each sample $X_i$, the response satisfies $Y_i= \bip{w_*, X_i}$.\\
+Given a new sample $X^{\text{new}}$, can we predict its corresponding response with $f_*$?
+\end{example}
+
+\begin{example}[Logistic Regression]
+    
 \end{example}
 
 \bibliography{all}
