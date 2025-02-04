@@ -9,10 +9,10 @@ X = np.random.rand(100, 2)
 y = (X[:, 0] + X[:, 1] > 1).astype(int)
 
 # Convert to a DataFrame
-df = pd.DataFrame(np.column_stack((X, y)), columns=["Feature_1", "Feature_2", "Label"])
+df = pd.DataFrame(np.column_stack((X, y)), columns=["x1", "x2", "y"])
 
 # Save to CSV
-df.to_csv("binary_toy_dataset.csv", index=False)
+df.to_csv("data_logistic.csv", index=False)
 
 # Display a sample
 print(df.head())
