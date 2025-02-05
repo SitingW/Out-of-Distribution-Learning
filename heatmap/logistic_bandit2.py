@@ -146,7 +146,7 @@ for label, marker, color in zip([0, 1], ['o', 's'], ['blue', 'red']):
     print(idx)
     print(X_train[idx, 0], X_train[idx, 1])
     plt.scatter(X_train[idx, 0], X_train[idx, 1], 
-                marker=marker, color=color, edgecolors='k', label=f'Label {label}', s=50)
+                marker=marker, color=color, edgecolors='k', label=f'Label {label}', s=50, alpha =0.5)
     
 # Add the decision boundary (where x1 * theta_0 + x2 * theta_1 = 0)
 # Check to avoid division by zero (theta_hat[1] should not be zero)
@@ -161,5 +161,5 @@ else:
     plt.axvline(x=-theta_hat[0]/1e-6, color='k', linestyle='--', linewidth=2, label='Decision Boundary')
 
 plt.legend()
-plt.title('Heatmap of Confidence Interval Width (Probability Space)')
+
 plt.show()
