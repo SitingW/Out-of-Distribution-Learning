@@ -4,7 +4,7 @@ import cvxpy as cp
 import matplotlib.pyplot as plt
 import math
 from scipy.linalg import orth
-
+import os
 #set random seeds
 np.random.seed(42)
 
@@ -152,6 +152,6 @@ plt.title('Variance vs Number of initializations (d=100, n=50)')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-
+os.makedirs("plots", exist_ok=True)
+plt.savefig(f'plots/variance_init_plot.png', dpi=300, bbox_inches='tight')
 # Display the plot
-plt.show()
