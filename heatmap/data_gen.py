@@ -5,7 +5,7 @@ import pandas as pd
 np.random.seed(42)
 
 # Number of samples per cluster
-n_samples = 500
+n_samples = 200
 
 # Define cluster centers inside the unit ball
 center_1 = np.array([0.5, 0.5])  # Cluster for y=1
@@ -33,9 +33,4 @@ y = np.concatenate((y1, y0))
 # Ensure all points are within the unit ball
 mask = np.linalg.norm(X, axis=1) <= 1
 X, y = X[mask], y[mask]  # Keep only valid points
-
-# Convert to a DataFrame
-df = pd.DataFrame(np.column_stack((X, y)), columns=["x1", "x2", "y"])
-
-# Save to CSV
-df.to_csv("data_logistic.csv", index=False)
+np.savez("data_logistic.npz", X=X, y=y)

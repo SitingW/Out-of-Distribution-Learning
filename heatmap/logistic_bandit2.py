@@ -34,6 +34,7 @@ class LogisticConfidence:
         """Fit the logistic regression model (MLE) and update the covariance estimate."""
         if not self.X:
             return
+        #res = minimize(self.logistic_loss, self.theta_hat, method="SLSQP")
         res = minimize(self.logistic_loss, self.theta_hat, method="BFGS")
         self.theta_hat = res.x
         X = np.array(self.X)
@@ -99,7 +100,7 @@ class LogisticConfidence:
 
 
 # Read the CSV file
-data = pd.read_csv('data_logistic.csv')
+data = pd.read_csv('/Users/annawang/Documents/Out-of-Distribution-Learning/heatmap/data_logistic.csv')
 
 # Separate the features and labels
 X_train = data[['x1', 'x2']].values  # Converts to a NumPy array of shape (n_samples, 2)
