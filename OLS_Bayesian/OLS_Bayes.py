@@ -1,14 +1,14 @@
-#inport library
+#import library
 import numpy as np
 import cvxpy as cp
 import matplotlib.pyplot as plt
-import math
+#import math
 from scipy.linalg import orth
 import os
 #set random seeds
 np.random.seed(42)
 
-#define the input outpue space
+#define the input output space
 d = 100
 n = 50
 o = 1 #output dimension
@@ -41,12 +41,14 @@ class GradientDescent:
         
 
     def predict(self, x, theta):
+        print(x.shape, theta.shape)
         return x @ theta
     
     
-    
+    #change this part into computing bunch gradients instead of one
     def gradient_compute(self, x, y):
-        theta_new = self.theta_history[-1] - self.eta * x * (self.predict(x ,self.theta_history[-1]) - y)
+
+        theta_new = self.theta_history[-1] - self.eta * np.mean(x.T @ (self.predict(x , self.theta_history[-1]) - y) )
         self.theta_history.append(theta_new)
         return theta_new
     
@@ -56,7 +58,7 @@ class GradientDescent:
 
     def gradient_output(self):
         for i in range (self. max_iterations):
-            self.gradient_compute(self.X_train[i], self.y_train[i])
+            self.gradient_compute(self.X_train, self.y_train)
             self.iterative_avg()
         return self.f_bar_lst[-1]
     
@@ -100,7 +102,7 @@ def inference(initial_ite,input_x, X, Y, lambda_val, max_iterations= n, alpha= 0
             theta_0 = init.initialization()
             #print(theta_0)
             #input,X_matrix, y_vector, lambda_val,theta_0, max_iterations, alpha, eta
-            gd = GradientDescent( input_x , X, Y, lambda_val,theta_0, max_iterations= n, alpha= 0.5, eta=0.01)
+            gd = GradientDescent( input_x , X, Y, lambda_val,theta_0, max_iterations, alpha, eta)
             f_out_lst.append(gd.gradient_output())
             #print(gd.gradient_output())
         variance = (np.var(f_out_lst, ddof=1))
@@ -125,10 +127,11 @@ if __name__ == "__main__":
         Q, R = np.linalg.qr(X)
         return Q @ Q.T
     P = projection_matrix_qr (X.T)
+    #print("Projection matrix P shape: ", P.shape)
     U = np.eye(d) - P
-    ones = np.ones(d)
+    ones = np.ones(d) # Create a vector of ones with the same dimension as d
     P_X = P @ ones
-    U_X = P @ ones
+    U_X = U @ ones
 
     initial_ite_lst = [5, 10 , 30 , 50 , 75, 100 , 200, 500] #may tune this hyperparameter
     var_P_lst = []
