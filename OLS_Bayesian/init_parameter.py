@@ -1,3 +1,5 @@
+from dependencies import np
+
 class InitParameter:
     def __init__(self, dim,  lambda_val= 1, cov = None):
         if cov is None:

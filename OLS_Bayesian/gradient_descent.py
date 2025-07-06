@@ -1,7 +1,11 @@
+from dependencies import np 
+
+
 class GradientDescent:
-    def __init__(self,input,X_matrix, y_vector, lambda_val,theta_0, max_iterations, alpha, eta):
+    def __init__(self,input,X_matrix, y_vector,theta_0, max_iterations, alpha, eta, lambda_val=0):
         self.lambda_val = lambda_val
         self.max_iterations = max_iterations
+        self.theta_0 = theta_0
         self.alpha = alpha
         self.eta =eta
         self.theta_history = [theta_0]
@@ -16,8 +20,9 @@ class GradientDescent:
     
     
     #change this part into computing bunch gradients instead of one
-    def gradient_compute(self, x, y):
-        theta_new = self.theta_history[-1] - self.eta * np.mean(x * (self.predict(x ,self.theta_history[-1]) - y))
+   
+    def gradient_ridge(self, x, y):
+        theta_new = self.theta_history[-1] - self.eta * (np.mean(x.T @ (self.predict(x ,self.theta_history[-1]) - y)) + self.lambda_val * (self.theta_history[-1]-self.theta_0))
         self.theta_history.append(theta_new)
         return theta_new
     
@@ -27,7 +32,7 @@ class GradientDescent:
 
     def gradient_output(self):
         for i in range (self. max_iterations):
-            self.gradient_compute(self.X_train, self.y_train)
+            self.gradient_ridge(self.X_train, self.y_train)
             self.iterative_avg()
         return self.f_bar_lst[-1]
     
