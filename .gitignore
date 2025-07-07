@@ -14,3 +14,27 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env.local
+.env.*.local
+
+
+# Plots and figures
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.svg
+plots/
+figures/
+output/
