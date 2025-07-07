@@ -71,4 +71,18 @@ def test_init_parameter_with_default_mean_and_cov():
     #np.mean(sample) is computing a sample's every entry's mean, which will only be close to 0 if we have multiple samples
     assert np.allclose(np.mean(sample, axis=1), np.zeros(dim), atol=1e-1), "Sample mean should be close to 0 (this one can fail with small sample size)"
     assert np.allclose(np.cov(sample), np.eye(dim), atol=1e-5), "Sample covariance should be close to identity matrix (this one can fail with small sample size)"  
-   
+
+
+def test_init_parameter_with_given_mean_and_default_cov():
+    dim = 5
+    sample_size = 10
+    #given mean and default covariance matrix
+    mean = np.ones(dim)
+    init_param = InitParameter(dim, sample_size, mean)
+    sample = init_param.initialization()
+    assert sample.shape == (dim, sample_size), "Sample should have shape (dim, n_sample)"
+    assert isinstance(sample, np.ndarray), "Sample should be a numpy array"
+    assert np.all(np.isfinite(sample)), "Sample should contain finite values"
+    #test if the sample is close to the given mean and default covariance
+    assert np.allclose(np.mean(sample, axis=1), mean, atol=1e-1), "Sample mean should be close to given mean (this one can fail with small sample size)"
+    assert np.allclose(np.cov(sample), np.eye(dim), atol=1e-5), "Sample covariance should be close to identity matrix (this one can fail with small sample size)"  
