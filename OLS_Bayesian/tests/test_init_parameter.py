@@ -14,8 +14,6 @@ purpose of this test:
 - test if the output is a sample from the multivariate normal distribution with a given covariance
 - test if the output is a sample from the multivariate normal distribution with a given mean
 - test if the output is a sample from the multivariate normal distribution with a given mean and covariance
-- test if the output is a sample from the multivariate normal distribution with a given mean and a default covariance
-- test if the output is a sample from the multivariate normal distribution with a default mean and a given covariance
 
 """
 #test the initialization of the InitParameter class
@@ -86,3 +84,32 @@ def test_init_parameter_with_given_mean_and_default_cov():
     #test if the sample is close to the given mean and default covariance
     assert np.allclose(np.mean(sample, axis=1), mean, atol=1e-1), "Sample mean should be close to given mean (this one can fail with small sample size)"
     assert np.allclose(np.cov(sample), np.eye(dim), atol=1e-5), "Sample covariance should be close to identity matrix (this one can fail with small sample size)"  
+
+def test_init_parameter_with_default_mean_and_given_cov():
+    dim = 5
+    sample_size = 10
+    #default mean and given covariance matrix
+    cov = np.eye(dim) * 2
+    init_param = InitParameter(dim, sample_size, cov=cov)
+    sample = init_param.initialization()
+    assert sample.shape == (dim, sample_size), "Sample should have shape (dim, n_sample)"
+    assert isinstance(sample, np.ndarray), "Sample should be a numpy array"
+    assert np.all(np.isfinite(sample)), "Sample should contain finite values"
+    #test if the sample is close to the default mean and given covariance
+    assert np.allclose(np.mean(sample, axis=1), np.zeros(dim), atol=1e-1), "Sample mean should be close to 0 (this one can fail with small sample size)"
+    assert np.allclose(np.cov(sample), cov, atol=1e-5), "Sample covariance should be close to given covariance (this one can fail with small sample size)"
+
+def test_init_parameter_with_given_mean_and_cov():
+    dim = 5
+    sample_size = 10
+    #given mean and covariance matrix
+    mean = np.ones(dim)
+    cov = np.eye(dim) * 2
+    init_param = InitParameter(dim, sample_size, mean, cov)
+    sample = init_param.initialization()
+    assert sample.shape == (dim, sample_size), "Sample should have shape (dim, n_sample)"
+    assert isinstance(sample, np.ndarray), "Sample should be a numpy array"
+    assert np.all(np.isfinite(sample)), "Sample should contain finite values"
+    #test if the sample is close to the given mean and covariance
+    assert np.allclose(np.mean(sample, axis=1), mean, atol=1e-1), "Sample mean should be close to given mean (this one can fail with small sample size)"
+    assert np.allclose(np.cov(sample), cov, atol=1e-5), "Sample covariance should be close to given covariance (this one can fail with small sample size)"
