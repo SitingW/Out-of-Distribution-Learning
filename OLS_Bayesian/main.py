@@ -1,4 +1,12 @@
-from dependencies import np, plt, os
+
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import sys
+
+
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from data_generator import DataGenerator
 from gradient_descent import GradientDescent

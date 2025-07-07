@@ -1,4 +1,4 @@
-from dependencies import np 
+import numpy as np
 
 
 class GradientDescent:

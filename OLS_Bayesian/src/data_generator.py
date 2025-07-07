@@ -1,4 +1,4 @@
-from dependencies import np
+import numpy as np
 
 class DataGenerator:
     def __init__(self, random_state = None):
