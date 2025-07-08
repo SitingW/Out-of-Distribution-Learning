@@ -1,7 +1,19 @@
 import pytest
 import numpy as np
 from gradient_descent import GradientDescent
-
+"""
+The test mainly testing on the following functions:
+- __init__      : Test the initialization of the GradientDescent class.
+- predict       : Test the predict method for correct output.
+- gradient_ridge: Test the gradient_ridge method for updating theta and correctness.
+- iterative_avg : Test the iterative_avg method for updating f_bar_lst.
+- gradient_output: Test the gradient_output method for running iterations and returning final f_bar.
+- Edge cases    : Test behavior with zero iterations, zero lambda, and zero learning rate.
+- Parametrized tests: Test behavior with different learning rates, alpha values, and regularization values.
+- Integration and convergence tests: Test the full workflow and convergence behavior.
+- Performance/stress tests: Test with a larger dataset.
+- Custom markers: Use custom markers for test organization.
+"""
 
 # Fixtures
 @pytest.fixture
@@ -240,6 +252,7 @@ def test_zero_learning_rate(test_data):
 
 
 # Parametrized tests
+#the parameterized tests are used to test the behavior of the gradient descent algorithm with different hyperparameters
 @pytest.mark.parametrize("learning_rate,iterations", [
     (0.001, 10),
     (0.01, 5),
