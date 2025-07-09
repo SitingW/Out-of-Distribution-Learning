@@ -51,7 +51,7 @@ if __name__ == "__main__":
     linear_gen = DataGenerator(random_state = 42)
     X, Y, theta_star = linear_gen.linear_regression_data(n_samples=n, n_features= d) 
 
-    lambda_val_lst = [0,0.001, 0.01, 0.1, 1,2, 5]
+    lambda_val_lst = [0.001, 0.01, 0.1, 1,2, 5,10, 20, 50, 100] #list of lambda values
     initial_ite = 50 
     max_iterations = 100
     learning_rate=0.001

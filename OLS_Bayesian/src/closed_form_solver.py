@@ -28,7 +28,7 @@ class ClosedFormSolver:
         """
         n, d = self.X.shape
         I = np.eye(d)
-        theta = sparse_inv(self.X.T @ self.X + self.lambda_val * I) @ (self.X.T @ self.y + self.lambda_val * theta_0)
+        theta = np.linalg.inv(self.X.T @ self.X + self.lambda_val * I) @ (self.X.T @ self.y + self.lambda_val * theta_0)
         return theta   
     
     def compute_theta_lst(self):
