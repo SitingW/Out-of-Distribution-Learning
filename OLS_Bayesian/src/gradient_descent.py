@@ -25,6 +25,8 @@ class GradientDescent:
         theta_prev = self.theta_history[-1]
         prediction_error = self.predict(x, theta_prev) - y
         gradient = x.T @ prediction_error
+        #what is the size of gradient?
+        #print("Gradient shape: ", gradient.shape)
         ridge_term = self.lambda_val * (theta_prev - self.theta_0)
         total_gradient = gradient + ridge_term
         theta_new = theta_prev - self.learning_rate * total_gradient
@@ -34,6 +36,7 @@ class GradientDescent:
     def iterative_avg(self):
         f_bar = self.alpha * self.predict(self.input,self.theta_history[-1] ) + ( 1- self.alpha) * self.f_bar_lst[-1]
         self.f_bar_lst.append(f_bar)
+        return f_bar
 
     def gradient_output(self):
         for i in range (self. max_iterations):

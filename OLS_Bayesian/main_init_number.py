@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from data_generator import DataGenerator
 from gradient_descent import GradientDescent
 from init_parameter import InitParameter
+from closed_form_solver import ClosedFormSolver
 
 #set random seeds
 np.random.seed(42)
@@ -21,7 +22,7 @@ n = 50
 o = 1 #output dimension
 
 
-def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations= n, alpha= 0.5, learning_rate=0.01 ):
+def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations, alpha, learning_rate):
     """
 Run gradient descent for multiple initial theta values sequentially
 
@@ -33,14 +34,11 @@ Args:
     
     for j in range(n_samples):
         theta_0 = theta_0_array[:, j]  # Select the j-th initial theta vector
-        print("Theta 0 value", theta_0_array)
-        #print("Theta 0 shape: ", theta_0.shape)
+        #print(theta_0_array)
         #input,X_matrix, y_vector, lambda_val,theta_0_array, max_iterations, alpha, eta
         gd = GradientDescent( input_x , X, Y,theta_0, max_iterations, alpha, learning_rate,  lambda_val)
         f_out_lst.append(gd.gradient_output())
         #print(gd.gradient_output())
-    #check the variance of the output
-    #print("f_out_lst: ", f_out_lst)
     variance = (np.var(f_out_lst, ddof=1))
     return variance
 
@@ -51,15 +49,14 @@ if __name__ == "__main__":
     linear_gen = DataGenerator(random_state = 42)
     X, Y, theta_star = linear_gen.linear_regression_data(n_samples=n, n_features= d) 
 
-    lambda_val_lst = [0,0.001, 0.01, 0.1, 1,2, 5]
-    initial_ite = 50 
-    max_iterations = 100
+    lambda_val = 0
+    initial_ite_lst = [30, 50 , 100, 200] 
     learning_rate=0.001
+    max_iterations = n
     alpha = 0.5
     
-  
-    init = InitParameter( dim = d, n_sample = initial_ite) 
-    theta_0_array = init.initialization()
+    
+   
     #input_x = np.eye(d)[30] #random generation
     #init will give n 
     #seperate the subspaces
@@ -78,7 +75,9 @@ if __name__ == "__main__":
      #may tune this hyperparameter
     var_P_lst = []
     var_U_lst = []
-    for lambda_val in lambda_val_lst:
+    for initial_ite in initial_ite_lst:
+        init = InitParameter( dim = d, n_sample = initial_ite) 
+        theta_0_array = init.initialization()
 
         var_P = inference(theta_0_array, P_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
         var_P_lst.append(var_P)
@@ -87,16 +86,16 @@ if __name__ == "__main__":
 
 #plot two lines
 plt.figure(figsize=(10, 6))
-plt.plot(lambda_val_lst, var_P_lst, marker='o', linewidth=2, markersize=6, label='Variance from projection subspace')
-plt.plot(lambda_val_lst, var_U_lst, marker='s', linewidth=2, markersize=6, label='Variance from orthogonal subspace')
+plt.plot(initial_ite_lst, var_P_lst, marker='o', linewidth=2, markersize=6, label='Variance from projection subspace')
+plt.plot(initial_ite_lst, var_U_lst, marker='s', linewidth=2, markersize=6, label='Variance from orthogonal subspace')
 
 # Customize the plot
 plt.xlabel('value of lambda')
 plt.ylabel('Variance')
-plt.title(f"Variance vs lambda value (d = {d}, n = {n}, initial_sample = {initial_ite}, learning rate = {learning_rate}, alpha = {alpha})")
+plt.title("Variance vs lambda value (d=100, n=50, initial_sample ="+ str(initial_ite)+ "), lambda value = "+ str(lambda_val)+ ")")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 os.makedirs("plots", exist_ok=True)
-plt.savefig(f'plots/variance_ridge_lambda.png', dpi=300, bbox_inches='tight')
+plt.savefig(f'plots/variance_initial_val.png', dpi=300, bbox_inches='tight')
 # Display the plot
