@@ -44,3 +44,7 @@ class GradientDescent:
             self.iterative_avg()
         return self.f_bar_lst[-1]
     
+    def solve_theta(self):
+        for i in range(self.max_iterations):
+            self.gradient_ridge(self.X_train, self.y_train)
+        return self.theta_history[-1]

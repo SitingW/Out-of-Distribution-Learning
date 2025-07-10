@@ -38,7 +38,7 @@ class ClosedFormSolver:
             self.theta_0_array = config['theta_0_array']
         except KeyError as e:
             raise ValueError(f"Missing configuration parameter: {e}")
-
+        #from the prompt, change the function name into solve
     def closed_form_theta (self, theta_0):
         """
         Closed-form solution for the Bayesian OLS regression.
@@ -79,18 +79,13 @@ class ClosedFormSolver:
         y_result_lst = theta_result_lst.T @ input_x
         return y_result_lst
     
-    def inference(self, input_x):
+    def quantile_inference(self, input_x):
         output_array = self.closed_form_sol(input_x)
-        # Compute the mean of the output array  
-        mean = np.mean(output_array)
-        # Compute the variance of the output array
-        variance = np.var(output_array, ddof=1)
-        
         # Compute the 10th, 50th and 90th percentiles
         median = np.median(output_array)
         q10 = np.percentile(output_array, 10)
         q90 = np.percentile(output_array, 90)
-        return mean, variance, q10, median, q90
+        return  q10, median, q90
     
     def mean_inference(self, input_x):
         output_array = self.closed_form_sol(input_x)
