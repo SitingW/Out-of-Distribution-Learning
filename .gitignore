@@ -1,40 +1,103 @@
-*~
-*.log
-*.aux
-*.out
-*.pdf
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-*.fdb_latexmk
-*.fls
-*.bbl
-*.blg
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually contains lots of files, generated during packaging
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# macOS metadata
 .DS_Store
-.AppleDouble
-.LSOverride
-Icon?
-ehthumbs.db
-Thumbs.db
 
-# Environments
-.env
-.venv
+# Virtual environments
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
+VENV/
+.venv/
+.env/
 
-# Environment variables
+# MyPy
+.mypy_cache/
+
+# Pyre
+.pyre/
+
+# Pytype
+.pytype/
+
+# Logs
+*.log
+
+# Local env files
 .env.local
-.env.*.local
+.env.*
+!.env.example
 
+# SQLite database files
+*.sqlite3
 
-# Plots and figures
+# Ignore secret config or credentials
+secrets.json
+config.yaml
+# Ignore plots and figures
 *.png
 *.jpg
 *.jpeg
 *.pdf
 *.svg
-plots/
+*.eps
+
+# Optional: if you store figures in a dedicated folder
 figures/
+plots/
 output/
