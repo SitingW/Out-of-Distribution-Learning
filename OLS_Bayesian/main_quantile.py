@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print("X shape: ", X.shape)
     print("Y shape: ", Y.shape)
 
-    lambda_val_lst = [0,0.001, 0.01, 0.1, 1,2, 5]
+    lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5]
     initial_ite = 50 
     max_iterations = 500
     learning_rate=0.001
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     #I_d - X(X^TX)^{-1}X^T
     #use scipy svd get two subspaces
     def projection_matrix_qr(X):
-        Q, R = np.linalg.qr(X, mode = "complete")
+        Q, R = np.linalg.qr(X, mode = "reduced")
         return Q @ Q.T
     P = projection_matrix_qr (X.T)
     #print("Projection matrix P shape: ", P.shape)

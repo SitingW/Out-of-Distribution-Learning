@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from data_generator import DataGenerator
 from gradient_descent import GradientDescent
 from init_parameter import InitParameter
+from closed_form_solver import ClosedFormSolver
 
 #set random seeds
 np.random.seed(42)
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     linear_gen = DataGenerator(random_state = 42)
     X, Y, theta_star = linear_gen.linear_regression_data(n_samples=n, n_features= d) 
 
-    lambda_val_lst = [0.001, 0.01, 0.1, 1,2, 5,10, 20, 50, 100] #list of lambda values
+    lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 20, 50, 100] #list of lambda values
     initial_ite = 50 
     max_iterations = 100
     learning_rate=0.001
@@ -78,6 +79,11 @@ if __name__ == "__main__":
      #may tune this hyperparameter
     var_P_lst = []
     var_U_lst = []
+
+    var_P_C_lst = []
+    var_U_C_lst = []
+
+
     for lambda_val in lambda_val_lst:
 
         var_P = inference(theta_0_array, P_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
@@ -85,10 +91,18 @@ if __name__ == "__main__":
         var_U = inference(theta_0_array, U_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
         var_U_lst.append(var_U)
 
+        cfs  = ClosedFormSolver(X, Y, theta_0_array, lambda_val)
+        var_P_C = cfs.mean_inference(P_X)[1]
+        var_P_C_lst.append(var_P_C)
+        var_U_C = cfs.mean_inference(U_X)[1]
+        var_U_C_lst.append(var_U_C)
+
 #plot two lines
 plt.figure(figsize=(10, 6))
-plt.plot(lambda_val_lst, var_P_lst, marker='o', linewidth=2, markersize=6, label='Variance from projection subspace')
-plt.plot(lambda_val_lst, var_U_lst, marker='s', linewidth=2, markersize=6, label='Variance from orthogonal subspace')
+plt.plot(lambda_val_lst, var_P_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
+plt.plot(lambda_val_lst, var_P_C_lst, marker='^', linewidth=2, linestyle = '--', markersize=6, label='Variance from projection subspace (closed form)')
+plt.plot(lambda_val_lst, var_U_lst, marker='s', linewidth=2,alpha =0.5, markersize=6, label='Variance from orthogonal subspace')
+plt.plot(lambda_val_lst, var_U_C_lst, marker='d', linewidth=2, linestyle = '--', markersize=6, label='Variance from orthogonal subspace (closed form)')
 
 # Customize the plot
 plt.xlabel('value of lambda')
