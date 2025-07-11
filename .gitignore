@@ -101,3 +101,7 @@ config.yaml
 figures/
 plots/
 output/
+
+filename.tex
+header.tex
+filename.synctex.gz
