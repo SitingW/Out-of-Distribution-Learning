@@ -15,7 +15,7 @@ if __name__ == "__main__":
     #set random seeds
     np.random.seed(42)
     #define the input output space
-    d = 1
+    d = 10
     n = 500
     o = 1 #output dimension
     # Generate data
@@ -24,14 +24,15 @@ if __name__ == "__main__":
     print("X shape: ", X.shape)
     print("Y shape: ", Y.shape)
     #generate initial theta_0_array
-    initial_ite = 50
-    init_param = InitParameter(dim=d, n_sample=initial_ite)
+    theta_0_num = 10
+    init_param = InitParameter(dim=d, n_sample=theta_0_num)
     theta_0_array = init_param.initialization()
+    lambda_val = 100  # Regularization parameter for gradient descent
     #closed form solution
     config = {
     'X': X,           # np.ndarray of shape (n_samples, n_features)
     'y': Y,         # np.ndarray of shape (n_samples,)
-    'lambda_val':0,   # float (regularization parameter)
+    'lambda_val':lambda_val,   # float (regularization parameter)
     'theta_0_array': theta_0_array   # np.ndarray of shape (n_features,)
 }
     closed_form_solver = ClosedFormSolver(config)
@@ -43,9 +44,8 @@ if __name__ == "__main__":
     max_iterations = 500
     alpha = 0.5
     learning_rate = 0.001 
-    lambda_val = 0  # Regularization parameter for gradient descent
-    y_hat_gd_lst = np.zeros((n, initial_ite))
-    for j in range(initial_ite):
+    y_hat_gd_lst = np.zeros((n, theta_0_num))
+    for j in range(theta_0_num):
         theta_0 = theta_0_array[:, j]  # Select the j-th initial theta vector
         #print("Theta 0 value", theta_0_array)
         #print("Theta 0 shape: ", theta_0.shape)
@@ -56,7 +56,8 @@ if __name__ == "__main__":
         theta_gd = gd.solve_theta()
         print("gradient descent theta shape: ", theta_gd.shape)
         # Compute the output for the given input using the closed-form solution
-        y_hat_gd = X.flatten() * theta_gd.flatten()
+        #if input and output feature numbers are both 1, there will be issue which reuires reshape
+        y_hat_gd = X @ theta_gd
         y_hat_gd_lst[:, j] = y_hat_gd  # Store the output in the array
 
 
@@ -68,13 +69,14 @@ if __name__ == "__main__":
     
     # Plot each row of the matrix as a separate line
     for i in range(y_hat_closed.shape[1]):  # 50 lines
-        plt.plot(timesteps, y_hat_closed[:, i], alpha=0.3, linewidth=0.8, linestyle='--', label=f'Theta {i+1} (Closed Form)')
+        plt.plot(timesteps, y_hat_closed[:, i], alpha=0.6, linewidth=1, linestyle='--', label=f'Theta {i+1} (Closed Form)', color = 'green')
     
     # Plot the vector (ground truth) in a distinctive color
     plt.plot(timesteps, Y, color='red', linewidth=2, alpha=0.9, label='Ground Truth Signal')
     # Plot the gradient descent output
     for i in range(y_hat_gd_lst.shape[1]):  # 50 lines
-        plt.plot(timesteps, y_hat_gd_lst[:, i], color='blue', linewidth=2, alpha=0.3, label='Gradient Descent Output')
+        plt.plot(timesteps, y_hat_gd_lst[:, i], color='blue', linewidth=1, alpha=0.5
+        , label='Gradient Descent Output')
     
     # Set labels and title (you can modify these)
     plt.xlabel('')  # Leave empty for you to fill
@@ -87,8 +89,9 @@ if __name__ == "__main__":
     plt.xlim(1, 500)
     
     # Add legend placeholders (you can customize)
-    plt.legend([''] * y_hat_closed.shape[1] + [''], loc='best')  # Empty labels for you to fill
+    #plt.legend()
+    #plt.legend([''] * y_hat_closed.shape[1] + [''], loc='best')  # Empty labels for you to fill
     # Adjust layout
-    plt.tight_layout()
+    #plt.tight_layout()
     # Show the plot
     plt.show()

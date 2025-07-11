@@ -34,16 +34,18 @@ class DataGenerator():
         # Generate the input features
         n_features = square_wave.shape[1]
         # Generate random noise
-        noise = self.rng.standard_normal((n_samples, n_features)) * 0.1  # Adjust noise level as needed
+        # noise = self.rng.standard_normal((n_samples, n_features)) * 0.1  # Adjust noise level as needed
         # Combine square wave with noise
-        X = square_wave + noise
+        X = square_wave #+ noise
         # Create target variable as a linear combination of features
         # Here we can use a simple linear combination with random coefficients
         #geneate target variable y, using square wave as features
-        y = np.sign (np.sin(2 * np.pi * harmonic_freqs[:, None] * t[None, :])).T 
+        true_theta = np.ones(n_features)
+        y = X @ true_theta
+        #y = np.sign (np.sin(2 * np.pi * harmonic_freqs[:, None] * t[None, :])).T 
 
         #solve the regression problem to get the true theta
-        true_theta = np.linalg.lstsq(X, y, rcond=None)[0]
+        #true_theta = np.linalg.lstsq(X, y, rcond=None)[0]
         # Return the generated data
         return X, y, true_theta
        
