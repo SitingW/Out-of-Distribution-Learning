@@ -1,12 +1,9 @@
-# test_models_pytest.py
-import pytest
-import torch
-import torch.nn as nn
-import numpy as np
-from abc import ABC, abstractmethod
-from typing import Tuple, List, Dict, Any, Optional
-import tempfile
-import os
+#import models with root path src
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent / 'src' / 'models'))
+
+from linear_model import LinearModel
 
 
 class BaseModelTest(ABC):
@@ -16,7 +13,7 @@ class BaseModelTest(ABC):
     def setup(self):
         """Set up test fixtures automatically for each test."""
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model = self.create_model()
+        self.model = self.import_model(ABC)   #was create_model now changed to import_model
         self.model.to(self.device)
         self.input_shape = self.get_input_shape()
         self.output_shape = self.get_expected_output_shape()
@@ -31,10 +28,13 @@ class BaseModelTest(ABC):
             torch.cuda.empty_cache()
     
     @abstractmethod
-    def create_model(self) -> nn.Module:
-        """Create and return the model to be tested.
-        Why do we need to create a new model for testing a model?
-        By creating a separate model for testing, we ensure that each test starts with a fresh instance???"""
+    def import_model(self, ABC) -> nn.Module:
+        """
+        Create and return the model to be tested.
+        Instead of create model, it's more like importing the model from the path.
+        Renamed into import_model.
+        Also changed the input to import models from directory src/models
+        """
         pass
     
     @abstractmethod
