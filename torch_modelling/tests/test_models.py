@@ -34,6 +34,7 @@ class BaseModelTest(ABC):
         Instead of create model, it's more like importing the model from the path.
         Renamed into import_model.
         Also changed the input to import models from directory src/models
+        Also, with @abstractmethod decorator, this method must be implemented in subclasses.
         """
         pass
     
