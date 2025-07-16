@@ -48,6 +48,7 @@ smmap==5.0.2
 stack-data==0.6.3
 sympy==1.14.0
 torch==2.7.1
+tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.14.1
 tzdata==2025.1

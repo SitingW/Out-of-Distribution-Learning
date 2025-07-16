@@ -1,3 +1,7 @@
+import torch
+import numpy as np
+from ..metrics.metric_registry import MetricRegistry #align with the existing structure
+
 class Evaluator:
     def __init__(self, model, device='cpu'):
         self.model = model
@@ -24,8 +28,10 @@ class Evaluator:
         predictions = np.concatenate(predictions, axis=0)
         targets = np.concatenate(targets, axis=0)
         
-        # Calculate metrics
-        metrics = calculate_metrics(targets, predictions)
-        metrics['test_loss'] = total_loss / len(test_loader)
+    
+        # Calculate metrics using registry
+        metrics = self.metric_registry.calculate_metrics(
+            targets, predictions, self.metric_names
+        )
         
         return metrics, predictions, targets   
