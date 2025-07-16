@@ -1,4 +1,7 @@
-class LinerModel():
+import torch
+import torch.nn as nn
+
+class LinearModel():
     def __init__(self, input_channels: int, output_channels: int):
         super().__init__()
         self.input_channels = input_channels

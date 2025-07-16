@@ -3,7 +3,23 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent / 'src' / 'models'))
 
+
+# Shared fixtures for all tests
+import pytest
+import torch
+import torch.nn as nn
+
+import numpy as np
+from abc import ABC, abstractmethod
+from typing import Tuple, List, Dict, Any, Optional
+import tempfile
+import os
+
+print("Torch in test file:", torch)
+print("Torch version:", torch.__version__)
+
 from linear_model import LinearModel
+
 
 
 class BaseModelTest(ABC):
