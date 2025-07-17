@@ -1,76 +1,47 @@
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from tqdm import tqdm
 import logging
 
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+#import torch.optim as optim
+#from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 
+
+
+'''
+In this trainer, we will not use ADAM optimiser for an experimental purpose, as we want to compare the model performance with the closed-form solution.
+We will also not use stochastic gradient descent, and we will use the full dataset for each iteration.
+'''
 class Trainer:
-    def __init__(self, model, optimizer, criterion, device='cpu'):
+    def __init__(self, model, learning_rate):
         self.model = model
-        self.optimizer = optimizer
-        self.criterion = criterion
-        self.device = device
-        self.model.to(device)
-        
-        # Setup logging
-        self.logger = logging.getLogger(__name__)
+        self.learning_rate = learning_rate
+        self.loss_fn = nn.MSELoss()
+        # Use SGD optimizer instead of manual updates
+        self.optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     
-    def train_epoch(self, train_loader):
-        """Train for one epoch."""
-        self.model.train()
-        total_loss = 0.0
-        
-        for batch_idx, (data, target) in enumerate(tqdm(train_loader, desc="Training")):
-            data, target = data.to(self.device), target.to(self.device)
-            
-            # Zero gradients
-            self.optimizer.zero_grad()
-            
-            # Forward pass
-            outputs = self.model(data)
-            loss = self.criterion(outputs, target)
-            
-            # Backward pass
-            loss.backward()
-            self.optimizer.step()
-            
-            total_loss += loss.item()
-        
-        return total_loss / len(train_loader)
-    
-    def train(self, train_loader, num_epochs, val_loader=None):
-        """Full training loop."""
-        train_losses = []
-        val_losses = []
-        
-        for epoch in range(num_epochs):
-            # Training
-            train_loss = self.train_epoch(train_loader)
-            train_losses.append(train_loss)
-            
-            # Validation
-            if val_loader:
-                val_loss = self.validate(val_loader)
-                val_losses.append(val_loss)
-                self.logger.info(f'Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
-            else:
-                self.logger.info(f'Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}')
-        
-        return train_losses, val_losses
-    
-    def validate(self, val_loader):
-        """Validation step."""
-        self.model.eval()
-        total_loss = 0.0
-        
-        with torch.no_grad():
-            for data, target in val_loader:
-                data, target = data.to(self.device), target.to(self.device)
-                outputs = self.model(data)
-                loss = self.criterion(outputs, target)
-                total_loss += loss.item()
-        
-        return total_loss / len(val_loader)
+    def train(self, X_tensor, y_tensor, epochs):
+        '''
+        X: pytorch tensors of feature
+        Y: pytorch tensors of targets
+        '''
+
+        losses = [] #why I need to keep track of this?
+        #parameter_history = [] #we won't keep track of parameter history and if we do, we will save checkpoint
+
+        for epoch in range (epochs):
+            predictions = self.model(X_tensor)
+            loss = self.loss_fn(predictions.squeeze(), y_tensor)
+             
+            #backward pass
+            self.optimizer.zero_grad()  #clear gradients
+            loss.backward()             #compute gradient
+            self.optimizer.step()       #update parameters
+
+            losses.append(loss.item())
+
+            #epoch size is small so we don't print for now
+
+        return losses

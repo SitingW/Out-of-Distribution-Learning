@@ -1,32 +1,34 @@
-import torch
-from torch.utils.data import Dataset
-from .data_generator import DataGenerator
-
-
-
 """
 I don't need to split data nor preprocess the data, as they are all generated.
 but do I need a dataloader? what is the purpose of dataloader here? somewhat unnecessary?
 """
-class SyntheticDataset(Dataset):
-    def __init__(self, generator: DataGenerator, n_samples: int, 
-                 n_features: int, transform=None):
-        self.generator = generator
-        self.n_samples = n_samples
-        self.n_feature = n_features
+
+import torch
+from torch.utils.data import Dataset
+from .data_generator import DataGenerator
+import numpy as np
+
+
+class LinearDataset(Dataset):
+    def __init__(self, X, y, transform=None):
+        """
+        Args:
+            X: numpy array of features
+            y: numpy array of targets
+            transform: optional transform to apply to features
+        """
+        self.X = torch.FloatTensor(X)
+        self.y = torch.FloatTensor(y)
         self.transform = transform
-        
-        # Generate all data at initialization or on-the-fly. With extra theta we will ignore it 
-        self.X, self.y , _ = self.generator.get_linear_regression_data(n_samples, n_features)
     
     def __len__(self):
-        return self.n_samples
+        return len(self.X)
     
     def __getitem__(self, idx):
-        x = torch.FloatTensor(self.X[idx])
-        y = torch.FloatTensor(self.y[idx])
+        features = self.X[idx]
+        target = self.y[idx]
         
         if self.transform:
-            x = self.transform(x)
+            features = self.transform(features)
             
-        return x, y
+        return features, target

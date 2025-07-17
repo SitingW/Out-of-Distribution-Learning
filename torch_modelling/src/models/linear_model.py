@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class LinearModel():
+class LinearModel(nn.Module):
     def __init__(self, input_channels: int, output_channels: int):
         super().__init__()
         self.input_channels = input_channels
