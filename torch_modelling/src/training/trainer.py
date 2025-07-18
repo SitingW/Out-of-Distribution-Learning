@@ -18,7 +18,7 @@ class Trainer:
     def __init__(self, model, learning_rate):
         self.model = model
         self.learning_rate = learning_rate
-        self.loss_fn = nn.MSELoss()
+        self.loss_fn = nn.MSELoss(reduction = 'mean')
         # Use SGD optimizer instead of manual updates
         self.optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     

@@ -14,18 +14,19 @@ from init_parameter import InitParameter
 if __name__ == "__main__":
     #set random seeds
     np.random.seed(42)
+    random_state = 42
     #define the input output space
     d = 10
     n = 500
     o = 1 #output dimension
     # Generate data
-    datagen = DataGenerator(random_state=42) 
+    datagen = DataGenerator(random_state=random_state) 
     X, Y, theta_star = datagen.get_square_wave_data(n_samples=n, n_features=d)
     print("X shape: ", X.shape)
     print("Y shape: ", Y.shape)
     #generate initial theta_0_array
     theta_0_num = 10
-    init_param = InitParameter(dim=d, n_sample=theta_0_num)
+    init_param = InitParameter(dim=d, n_sample=theta_0_num, random_state =random_state)
     theta_0_array = init_param.initialization()
     lambda_val = 100  # Regularization parameter for gradient descent
     #closed form solution

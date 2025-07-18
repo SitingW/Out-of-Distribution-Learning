@@ -10,7 +10,7 @@ functional of initparameter:
 - Yes, we are going to consider the multiple samples. Getting the hyperapmeter J into this class.
 """
 class InitParameter:
-    def __init__(self, dim,n_sample, mean = None,cov = None, random_state = None):
+    def __init__(self, dim,n_samples, mean = None,cov = None, random_state = None):
         if random_state is not None:
             #TODO: check whether the random state is not int
             np.random.seed(random_state)
@@ -21,7 +21,7 @@ class InitParameter:
         self.mean = mean
         self.dim = dim
         self.cov = cov
-        self.n_sample = n_sample
+        self.n_sample = n_samples
            
     def initialization(self):
         mean = np.zeros(self.dim)
