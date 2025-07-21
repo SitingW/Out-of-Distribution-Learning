@@ -54,7 +54,7 @@ class Trainer:
 
             #backward pass
             self.optimizer.zero_grad()  #clear gradients
-            loss.backward()             #compute gradient
+            total_loss.backward()             #compute gradient
             self.optimizer.step()       #update parameters
 
             #losses.append(loss.item())

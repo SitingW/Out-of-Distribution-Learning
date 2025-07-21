@@ -25,7 +25,7 @@ np.random.seed(42)
 random_state = 42
 '''defeine hyperparameters'''
 learning_rate = 0.001
-lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 20, 50, 100] #list of lambda values
+lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
 max_iterations = 100
 theta_0_num = 10
 alpha_val = 0.5
