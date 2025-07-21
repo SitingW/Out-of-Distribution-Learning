@@ -23,7 +23,7 @@ class Trainer:
         self.learning_rate = config.get("learning_rate")
         self.lambda_val = config.get("lambda_val", 0)
         self.lr = config.get('lr', 0.01)
-        self.loss_fn = config.get( "loss_fn", nn.MSELoss(reduction = 'sum')) #aligned with our numpy models
+        self.loss_fn = config.get( "loss_fn", nn.MSELoss(reduction = 'mean')) #aligned with our numpy models
         # Use SGD optimizer instead of manual updates
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.learning_rate)
 

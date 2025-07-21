@@ -13,18 +13,30 @@ from gradient_descent import GradientDescent
 from init_parameter import InitParameter
 from closed_form_solver import ClosedFormSolver
 
-#set random seeds
+
+
+'''set random seed for reproducibility'''
 random_state = 42
 np.random.seed(random_state)
+'''defeine hyperparameters'''
+learning_rate = 0.001
+lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5] #list of lambda values
+#lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
+max_iterations = 100
+theta_0_num = 50
+alpha_val = 0.5
+reduction = 'sum'
 
-#define the input output space
-n_features = 100
+'''Generate sparse data'''
 n_samples = 50
-o = 1 #output dimension
+n_features = 100
+output_features = 1
+data_gen = DataGenerator(random_state = random_state)
+X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
 
 
 
-def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations= n_samples, alpha= 0.5, learning_rate=0.01 ):
+def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations= max_iterations, alpha_val= 0.5, learning_rate=0.01 ):
     """
 Run gradient descent for multiple initial theta values sequentially
 
@@ -32,14 +44,22 @@ Args:
     theta_0_array: Shape (n_features, n_samples) - multiple initial theta vectors
 """
     f_out_lst = []
-    n_samples = theta_0_array.shape[1]
-    
-    for j in range(n_samples):
+    theta_0_num = theta_0_array.shape[1]
+    #print("shape of theta_0_array", theta_0_array.shape)
+    for j in range(theta_0_num):
         theta_0 = theta_0_array[:, j]  # Select the j-th initial theta vector
-        print("Theta 0 value", theta_0_array)
+        #print("Theta 0 value", theta_0_array)
         #print("Theta 0 shape: ", theta_0.shape)
         #input,X_matrix, y_vector, lambda_val,theta_0_array, max_iterations, alpha, eta
-        gd = GradientDescent( input_x , X, Y,theta_0, max_iterations, alpha, learning_rate,  lambda_val)
+        gd = GradientDescent( input_x, 
+                             X, Y,
+                             theta_0, 
+                             max_iterations, 
+                             alpha_val, 
+                             learning_rate, 
+                             lambda_val,
+                             reduction
+                             )
         f_out_lst.append(gd.gradient_output())
         #print(gd.gradient_output())
     #check the variance of the output
@@ -51,16 +71,6 @@ if __name__ == "__main__":
     ##generate the parameters W*
     theta_star = np.ones(n_features) 
     #Generate data
-    linear_gen = DataGenerator(random_state = 42)
-    X, Y, theta_star = linear_gen.get_linear_regression_data(n_samples=n_samples, n_features= n_features) 
-
-    lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 20, 50, 100] #list of lambda values
-    theta_0_num = 50 
-    max_iterations = 100
-    learning_rate=0.001
-    alpha = 0.5
-    
-  
     init = InitParameter( dim = n_features, n_sample = theta_0_num, random_state = random_state) 
     theta_0_array = init.initialization()
     #input_x = np.eye(d)[30] #random generation
@@ -88,12 +98,10 @@ if __name__ == "__main__":
 
     for lambda_val in lambda_val_lst:
 
-        
-         
 
-        var_P = inference(theta_0_array, P_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
+        var_P = inference(theta_0_array, P_X, X, y, lambda_val, max_iterations, alpha_val, learning_rate)
         var_P_lst.append(var_P)
-        var_U = inference(theta_0_array, U_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
+        var_U = inference(theta_0_array, U_X, X, y, lambda_val, max_iterations, alpha_val, learning_rate)
         var_U_lst.append(var_U)
 
         '''
@@ -102,7 +110,7 @@ if __name__ == "__main__":
         '''
         CLOSED_FORM_CONFIG = {
                         'X': X,           # np.ndarray of shape (n_samples, n_features)
-                        'y': Y,         # np.ndarray of shape (n_samples,)
+                        'y': y,         # np.ndarray of shape (n_samples,)
                         'lambda_val':lambda_val,   # float (regularization parameter)
                         'theta_0_array': theta_0_array   # np.ndarray of shape (n_features,)
         }
@@ -122,7 +130,7 @@ plt.plot(lambda_val_lst, var_U_C_lst, marker='d', linewidth=2, linestyle = '--',
 # Customize the plot
 plt.xlabel('value of lambda')
 plt.ylabel('Variance')
-plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha})")
+plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val})")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()

@@ -5,6 +5,7 @@ from scipy.linalg import inv as dense_inv
 from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass
 import json
+import torch
 
 
 #handle the case of sparse and dense matrices
@@ -44,7 +45,7 @@ class ClosedFormSolver:
         Closed-form solution for the Bayesian OLS regression.
         """
         n, d = self.X.shape
-        I = np.eye(d)
+        I = torch.eye(d)
         
         A = self.X.T @ self.X + self.lambda_val * I
         b = self.X.T @ self.y + self.lambda_val * theta_0
@@ -57,6 +58,7 @@ class ClosedFormSolver:
         I = torch.eye(d)
         
         A = self.X.T @ self.X + self.lambda_val * I
+        A = A.double()
         b = self.X.T @ self.y + self.lambda_val * theta_0
         theta = torch.linalg.solve(A, b)
         #theta = universal_solve(A, b)
@@ -78,7 +80,7 @@ class ClosedFormSolver:
         for j in range(n_sample):
             theta_0 = self.theta_0_array[:, j]  # Select the j-th initial theta vector
             # Compute the closed-form solution for the j-th initial theta
-            theta_sol = self.closed_form_theta(theta_0)
+            theta_sol = self.torch_closed_form_theta(theta_0)
             # Directly assign to the j-th column of the array
             theta_sol_array[:, j] = theta_sol
         return theta_sol_array
@@ -105,5 +107,5 @@ class ClosedFormSolver:
         # Compute the mean of the output array  
         mean = torch.mean(output_array)
         # Compute the variance of the output array
-        variance = np.var(output_array, ddof=1)
+        variance = torch.var(output_array)
         return mean, variance

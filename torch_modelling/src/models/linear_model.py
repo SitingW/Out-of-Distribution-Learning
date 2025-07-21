@@ -9,8 +9,8 @@ class LinearModel(nn.Module):
         self.linear_layer = nn.Linear(input_channels, output_channels, bias=bias)
 
         #check if I have no biased term
-        print("Has bias:", self.linear_layer.bias is not None)  # False
-        print("Bias:", self.linear_layer.bias) 
+        #print("Has bias:", self.linear_layer.bias is not None)  # False
+        #print("Bias:", self.linear_layer.bias) 
 
         theta_0 = torch.tensor(theta_0, dtype=torch.float32)
         self.linear_layer.weight.data = theta_0   
