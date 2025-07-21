@@ -30,13 +30,13 @@ if __name__ == "__main__":
     theta_0_array = init_param.initialization()
     lambda_val = 100  # Regularization parameter for gradient descent
     #closed form solution
-    config = {
+    CLOSED_FORM_CONFIG = {
     'X': X,           # np.ndarray of shape (n_samples, n_features)
     'y': Y,         # np.ndarray of shape (n_samples,)
     'lambda_val':lambda_val,   # float (regularization parameter)
     'theta_0_array': theta_0_array   # np.ndarray of shape (n_features,)
             }
-    closed_form_solver = ClosedFormSolver(config)
+    closed_form_solver = ClosedFormSolver(CLOSED_FORM_CONFIG)
     theta_closed_form_array = closed_form_solver.compute_theta_lst()
     y_hat_closed = X @ theta_closed_form_array
     print("Closed form solution shape: ", y_hat_closed.shape)

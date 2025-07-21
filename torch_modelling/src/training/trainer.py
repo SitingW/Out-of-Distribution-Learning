@@ -3,10 +3,13 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 import logging
+from typing import Dict, Any, Optional, List, Union
+
 
 #import torch.optim as optim
 #from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
+
 
 
 
@@ -15,13 +18,14 @@ In this trainer, we will not use ADAM optimiser for an experimental purpose, as 
 We will also not use stochastic gradient descent, and we will use the full dataset for each iteration.
 '''
 class Trainer:
-    def __init__(self, model, learning_rate, lambda_val = 0):
-        self.model = model
-        self.learning_rate = learning_rate
-        self.lambda_val = lambda_val
-        self.loss_fn = nn.MSELoss(reduction = 'sum') #aligned with our numpy models
+    def __init__(self, config: Dict[str, any]):
+        self.model = config.get("model")
+        self.learning_rate = config.get("learning_rate")
+        self.lambda_val = config.get("lambda_val", 0)
+        self.lr = config.get('lr', 0.01)
+        self.loss_fn = config.get( "loss_fn", nn.MSELoss(reduction = 'sum')) #aligned with our numpy models
         # Use SGD optimizer instead of manual updates
-        self.optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=self.learning_rate)
 
         # Store initial parameters
         self.initial_params = {name: param.clone().detach() 

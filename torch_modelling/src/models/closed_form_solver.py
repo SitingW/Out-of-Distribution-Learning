@@ -12,7 +12,7 @@ def universal_solve(A, b):
     if sp.issparse(A):
         return spsolve(A, b)
     else:
-        return np.linalg.solve(A, b)
+        return torch.linalg.solve(A, b)
     
 
 class ClosedFormSolver:
@@ -52,6 +52,18 @@ class ClosedFormSolver:
         return theta   
     
 
+    def torch_closed_form_theta (self, theta_0):
+        n, d = self.X.shape
+        I = torch.eye(d)
+        
+        A = self.X.T @ self.X + self.lambda_val * I
+        b = self.X.T @ self.y + self.lambda_val * theta_0
+        theta = torch.linalg.solve(A, b)
+        #theta = universal_solve(A, b)
+        return theta   
+
+    
+
     def compute_theta_lst(self):
         """
         Compute the closed form theta_hat theta values for multiple iterations.
@@ -62,7 +74,7 @@ class ClosedFormSolver:
         """
         n_features = self.theta_0_array.shape[0]
         n_sample = self.theta_0_array.shape[1]
-        theta_sol_array = np.zeros((n_features, n_sample))
+        theta_sol_array = torch.zeros((n_features, n_sample))
         for j in range(n_sample):
             theta_0 = self.theta_0_array[:, j]  # Select the j-th initial theta vector
             # Compute the closed-form solution for the j-th initial theta
@@ -83,15 +95,15 @@ class ClosedFormSolver:
     def quantile_inference(self, input_x):
         output_array = self.closed_form_sol(input_x)
         # Compute the 10th, 50th and 90th percentiles
-        median = np.median(output_array)
-        q10 = np.percentile(output_array, 10)
-        q90 = np.percentile(output_array, 90)
+        median = torch.median(output_array)
+        q10 = torch.percentile(output_array, 10)
+        q90 = torch.percentile(output_array, 90)
         return  q10, median, q90
     
     def mean_inference(self, input_x):
         output_array = self.closed_form_sol(input_x)
         # Compute the mean of the output array  
-        mean = np.mean(output_array)
+        mean = torch.mean(output_array)
         # Compute the variance of the output array
         variance = np.var(output_array, ddof=1)
         return mean, variance

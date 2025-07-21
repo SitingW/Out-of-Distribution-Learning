@@ -21,13 +21,15 @@ import numpy as np
 
 
 '''set random seed for reproducibility'''
-np.random.seed(42)
 random_state = 42
+np.random.seed(random_state)
 '''defeine hyperparameters'''
-learning_rate = 0.001
-lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
+learning_rate = 0.01
+lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
+
+#lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
 max_iterations = 100
-theta_0_num = 10
+theta_0_num = 50
 alpha_val = 0.5
 
 '''Generate sparse data'''
@@ -45,7 +47,7 @@ for lambda_val in lambda_val_lst:
     '''theta_0 generation'''
     init_param = InitParameter(dim = n_features, n_samples = theta_0_num, random_state = random_state)
     theta_0_array = init_param.initialization()
-
+    
     #initial the P_X and U_X stack
     P_X_lst = []
     U_X_lst = []
@@ -54,7 +56,14 @@ for lambda_val in lambda_val_lst:
         '''modelling'''
         model = LinearModel(input_channels=n_features, output_channels=output_features, theta_0=theta_0)  # Example dimensions
 
-        trainer = Trainer(model, learning_rate=learning_rate, lambda_val = lambda_val)
+        gd_config = {
+            "model" : model,
+            "learning_rate" : learning_rate,
+            "lambda_val" :lambda_val,
+            "loss_fn" : nn.MSELoss(reduction= 'mean')
+        }
+
+        trainer = Trainer(gd_config)
         #I should input dataset instead of X and y here
         trainer.train(dataset.X, dataset.y, epochs = max_iterations)
 

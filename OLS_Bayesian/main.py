@@ -14,15 +14,17 @@ from init_parameter import InitParameter
 from closed_form_solver import ClosedFormSolver
 
 #set random seeds
-np.random.seed(42)
+random_state = 42
+np.random.seed(random_state)
 
 #define the input output space
-d = 100
-n = 50
+n_features = 100
+n_samples = 50
 o = 1 #output dimension
 
 
-def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations= n, alpha= 0.5, learning_rate=0.01 ):
+
+def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations= n_samples, alpha= 0.5, learning_rate=0.01 ):
     """
 Run gradient descent for multiple initial theta values sequentially
 
@@ -47,19 +49,19 @@ Args:
 
 if __name__ == "__main__":
     ##generate the parameters W*
-    theta_star = np.ones(d) 
+    theta_star = np.ones(n_features) 
     #Generate data
     linear_gen = DataGenerator(random_state = 42)
-    X, Y, theta_star = linear_gen.get_linear_regression_data(n_samples=n, n_features= d) 
+    X, Y, theta_star = linear_gen.get_linear_regression_data(n_samples=n_samples, n_features= n_features) 
 
     lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 20, 50, 100] #list of lambda values
-    initial_ite = 50 
+    theta_0_num = 50 
     max_iterations = 100
     learning_rate=0.001
     alpha = 0.5
     
   
-    init = InitParameter( dim = d, n_sample = initial_ite) 
+    init = InitParameter( dim = n_features, n_sample = theta_0_num, random_state = random_state) 
     theta_0_array = init.initialization()
     #input_x = np.eye(d)[30] #random generation
     #init will give n 
@@ -71,8 +73,8 @@ if __name__ == "__main__":
         return Q @ Q.T
     P = projection_matrix_qr (X.T)
     #print("Projection matrix P shape: ", P.shape)
-    U = np.eye(d) - P
-    ones = np.ones(d) # Create a vector of ones with the same dimension as d
+    U = np.eye(n_features) - P
+    ones = np.ones(n_features) # Create a vector of ones with the same dimension as d
     P_X = P @ ones
     U_X = U @ ones
 
@@ -83,32 +85,44 @@ if __name__ == "__main__":
     var_P_C_lst = []
     var_U_C_lst = []
 
-    #config for closed form solution
 
     for lambda_val in lambda_val_lst:
+
+        
+         
 
         var_P = inference(theta_0_array, P_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
         var_P_lst.append(var_P)
         var_U = inference(theta_0_array, U_X, X, Y, lambda_val, max_iterations, alpha, learning_rate)
         var_U_lst.append(var_U)
 
-        # cfs  = ClosedFormSolver(X, Y, theta_0_array, lambda_val)
-        # var_P_C = cfs.mean_inference(P_X)[1]
-        # var_P_C_lst.append(var_P_C)
-        # var_U_C = cfs.mean_inference(U_X)[1]
-        # var_U_C_lst.append(var_U_C)
+        '''
+        config for closed-form solution. 
+        As we have the lambda_val_list, we need to put the config inside here
+        '''
+        CLOSED_FORM_CONFIG = {
+                        'X': X,           # np.ndarray of shape (n_samples, n_features)
+                        'y': Y,         # np.ndarray of shape (n_samples,)
+                        'lambda_val':lambda_val,   # float (regularization parameter)
+                        'theta_0_array': theta_0_array   # np.ndarray of shape (n_features,)
+        }
+        cfs  = ClosedFormSolver(CLOSED_FORM_CONFIG)
+        var_P_C = cfs.mean_inference(P_X)[1]
+        var_P_C_lst.append(var_P_C)
+        var_U_C = cfs.mean_inference(U_X)[1]
+        var_U_C_lst.append(var_U_C)
 
 #plot two lines
 plt.figure(figsize=(10, 6))
 plt.plot(lambda_val_lst, var_P_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
-#plt.plot(lambda_val_lst, var_P_C_lst, marker='^', linewidth=2, linestyle = '--', markersize=6, label='Variance from projection subspace (closed form)')
+plt.plot(lambda_val_lst, var_P_C_lst, marker='^', linewidth=2, linestyle = '--', markersize=6, label='Variance from projection subspace (closed form)')
 plt.plot(lambda_val_lst, var_U_lst, marker='s', linewidth=2,alpha =0.5, markersize=6, label='Variance from orthogonal subspace')
-#plt.plot(lambda_val_lst, var_U_C_lst, marker='d', linewidth=2, linestyle = '--', markersize=6, label='Variance from orthogonal subspace (closed form)')
+plt.plot(lambda_val_lst, var_U_C_lst, marker='d', linewidth=2, linestyle = '--', markersize=6, label='Variance from orthogonal subspace (closed form)')
 
 # Customize the plot
 plt.xlabel('value of lambda')
 plt.ylabel('Variance')
-plt.title(f"Variance vs lambda value (d = {d}, n = {n}, initial_sample = {initial_ite}, learning rate = {learning_rate}, alpha = {alpha})")
+plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha})")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
