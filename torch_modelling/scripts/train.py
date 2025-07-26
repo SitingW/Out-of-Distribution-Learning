@@ -5,17 +5,17 @@
 import sys
 import os
 from pathlib import Path
-src_path = Path(__file__).parent.parent / "src"
+src_path = Path(__file__).parent.parent
 sys.path.insert(0, str(src_path))
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from models.linear_model import LinearModel
-from models.np_init_parameter import InitParameter
-from data.dataset import LinearDataset
-from data.data_generator import DataGenerator
-from training.trainer import Trainer
-from models.closed_form_solver import ClosedFormSolver
+from src.models.linear_model import LinearModel
+from src.models.np_init_parameter import InitParameter
+from src.data.dataset import LinearDataset
+from src.data.data_generator import DataGenerator
+from src.training.trainer import Trainer
+from src.models.closed_form_solver import ClosedFormSolver
 from torch.utils.data import DataLoader
 import numpy as np
 
@@ -43,15 +43,21 @@ dataset = LinearDataset(X, y)
 '''this is for each lambda value. I'm going to put this into a function? no let me put it into a for loop'''
 var_P_X_lst = []
 var_U_X_lst = []
-P_X_lst = []
-U_X_lst = []
+
 P_C_lst = []
 U_C_lst = []
+
+#create x_p and x_u as ols_bayesian
+#use scipy svd get two subspaces
+def projection_matrix_qr(X):
+    Q, R = np.linalg.qr(X)
+    return Q @ Q.T
 for lambda_val in lambda_val_lst:
     '''theta_0 generation'''
     init_param = InitParameter(dim = n_features, n_samples = theta_0_num, random_state = random_state)
     theta_0_array = init_param.initialization()
-    
+    P_X_lst = []
+    U_X_lst = []
     #initial the P_X and U_X stack
    
     for j in range (theta_0_num):
@@ -71,11 +77,7 @@ for lambda_val in lambda_val_lst:
         trainer.train(dataset.X, dataset.y, epochs = max_iterations)
 
 
-        #create x_p and x_u as ols_bayesian
-        #use scipy svd get two subspaces
-        def projection_matrix_qr(X):
-            Q, R = np.linalg.qr(X)
-            return Q @ Q.T
+
         P = projection_matrix_qr (X.T)
         #print("Projection matrix P shape: ", P.shape)
         U = np.eye(n_features) - P
