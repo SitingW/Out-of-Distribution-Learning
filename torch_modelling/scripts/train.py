@@ -18,12 +18,30 @@ from src.training.trainer import Trainer
 from src.models.closed_form_solver import ClosedFormSolver
 from torch.utils.data import DataLoader
 import numpy as np
+from typing import List, Tuple, Dict, Any
 
 
 
-'''set random seed for reproducibility'''
-random_state = 42
-np.random.seed(random_state)
+
+#random_state = 42
+def set_random_seeds(random_state: int) -> None:
+    """set random seed for reproducibility"""
+    np.random.seed(random_state)
+    torch.manual_seed(random_state)
+
+
+def projection_matrix_qr(X):
+    """define the projection matrix"""
+    Q, R = np.linalg.qr(X)
+    return Q @ Q.T
+
+"""define generate data"""
+def generate_data(n_samples: int, n_features: int, random_state: int)-> Tuple[LinearDataset, np.ndarray, np.ndarray]:
+    data_gen = DataGenerator(random_state = random_state)
+    X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
+    dataset = LinearDataset(X, y)
+    return dataset, X, y
+
 '''defeine hyperparameters'''
 learning_rate = 0.001
 lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
@@ -49,9 +67,7 @@ U_C_lst = []
 
 #create x_p and x_u as ols_bayesian
 #use scipy svd get two subspaces
-def projection_matrix_qr(X):
-    Q, R = np.linalg.qr(X)
-    return Q @ Q.T
+
 for lambda_val in lambda_val_lst:
     '''theta_0 generation'''
     init_param = InitParameter(dim = n_features, n_samples = theta_0_num, random_state = random_state)
@@ -77,13 +93,15 @@ for lambda_val in lambda_val_lst:
         trainer.train(dataset.X, dataset.y, epochs = max_iterations)
 
 
-
-        P = projection_matrix_qr (X.T)
-        #print("Projection matrix P shape: ", P.shape)
-        U = np.eye(n_features) - P
-        ones = np.ones(n_features) # Create a vector of ones with the same dimension as d
-        P_X = P @ ones
-        U_X = U @ ones
+        def get_projection_matrices (X: np.ndarray, n_features: int) -> Tuple[np.ndarray , np.ndarray]:
+            """create projection matrix and orthogonal matrix"""
+            P = projection_matrix_qr (X.T)
+            #print("Projection matrix P shape: ", P.shape)
+            U = np.eye(n_features) - P
+            ones = np.ones(n_features) # Create a vector of ones with the same dimension as d
+            P_X = P @ ones
+            U_X = U @ ones
+            return P_X, U_X
 
         pred_P_X = trainer.iterative_mean(P_X, max_iterations, alpha_val)
         pred_U_X = trainer.iterative_mean(U_X, max_iterations, alpha_val)
@@ -129,3 +147,10 @@ plt.tight_layout()
 os.makedirs("plots/pytorch_plot/", exist_ok=True)
 plt.savefig(f'plots/pytorch_plot/variance_ridge_lambda.png', dpi=300, bbox_inches='tight')
 # Display the plot
+
+
+
+if __name__ == "__main__":
+    # set random seeds for reproductibility
+    random_state = 42
+    set_random_seeds(random_state)
