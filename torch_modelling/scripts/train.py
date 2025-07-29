@@ -20,7 +20,18 @@ from torch.utils.data import DataLoader
 import numpy as np
 from typing import List, Tuple, Dict, Any
 
-
+"""define random state"""
+random_state = 42
+'''defeine hyperparameters'''
+learning_rate = 0.001
+lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
+#lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
+max_iterations = 100
+theta_0_num = 50
+alpha_val = 0.5
+n_samples = 50
+n_features = 100
+output_features = 1
 
 
 #random_state = 42
@@ -42,7 +53,7 @@ def projection_matrix_qr(X: np.ndarray) -> np.ndarray:
     Q, R = np.linalg.qr(X)
     return Q @ Q.T
 
-def get_projection_matrices (X: np.ndarray, n_features: int) -> Tuple[np.ndarray , np.ndarray]:
+def get_projection_vectors (X: np.ndarray, n_features: int) -> Tuple[np.ndarray , np.ndarray]:
     """
     Create projection matrix and orthogonal matrix.
     Function is borrowed from numpy codebase.
@@ -53,9 +64,10 @@ def get_projection_matrices (X: np.ndarray, n_features: int) -> Tuple[np.ndarray
     #print("Projection matrix P shape: ", P.shape)
     orth_matrix = np.eye(n_features) - proj_matrix
     ones = np.ones(n_features) # Create a vector of ones with the same dimension as d
-    proj_matrix = proj_matrix @ ones
-    orth_matrix = orth_matrix @ ones
-    return proj_matrix, orth_matrix
+    proj_vec = proj_matrix @ ones
+    orth_vec = orth_matrix @ ones
+    return proj_vec, orth_vec
+
 
 #define single run training for reuse
 def train_single_model(n_features: int, output_features: int, theta_0: float, learning_rate: float, lambda_val: float, dataset: LinearDataset, max_iterations: int) -> Trainer:
@@ -146,55 +158,70 @@ def compute_variance_wrt_theta_init(
     return var_proj_matrix, var_orth_matrix, P_C, U_C
 
 
+def compute_variance_analysis (
+        X: np.ndarray,
+        n_features: int,
+        output_features: int,
+        lambda_val_lst: List[float],
+        theta_0_num: float,
+        random_state: int,
+        dataset: LinearDataset,
+        max_iterations: float
+        ) -> Tuple[List[torch.Tensor], List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
+    """
+    Compute variance analysis for projection space (proj_matrix) and orthogonal space (orth_matrix). It:
+    1. generate a projection vector and orthogonal vector
+    2.
+    """
 
 
-"""define random state"""
-random_state = 42
-'''defeine hyperparameters'''
-learning_rate = 0.001
-lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
-#lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
-max_iterations = 100
-theta_0_num = 50
-alpha_val = 0.5
-n_samples = 50
-n_features = 100
-output_features = 1
+    #Change name from var_P_X_lst into var_proj_matrix_lst for clearity.
+    var_proj_matrix_lst = []
+    var_orth_matrix_lst = []
+    P_C_lst = []
+    U_C_lst = []
 
-"""Set-up random seeds"""
-set_random_seeds(random_state)
 
-"""Generate sparse data"""
+    """run get_projection_matrices(X, n_fratures) to get the projection matrices"""
+    proj_vec, orth_vec = get_projection_vectors(X, n_features)
+
+    for lambda_val in lambda_val_lst:
+        var_proj_matrix, var_orth_matrix, P_C, U_C = compute_variance_wrt_theta_init(
+            proj_vec, orth_vec,
+            n_features, output_features,
+            theta_0_num, random_state,lambda_val, dataset, max_iterations
+        )
+        P_C_lst.append(P_C)
+        U_C_lst.append(U_C)
+
+        """Change name from var_P_X & var_U_X into var_proj_matrix & var_orth_matrix"""
+
+        var_proj_matrix_lst.append(var_proj_matrix)
+        var_orth_matrix_lst.append(var_orth_matrix)
+    return var_proj_matrix_lst, var_orth_matrix_lst, P_C_lst, U_C_lst
+
+
+
+
+
+if __name__ == "__main__":
+    # set random seeds for reproductibility
+    random_state = 42
+    set_random_seeds(random_state)
+
+
+    """Generate sparse data"""
 data_gen = DataGenerator(random_state = random_state)
 X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
 dataset = LinearDataset(X, y)
 
-'''this is for each lambda value. I'm going to put this into a function? no let me put it into a for loop'''
-"""Change name from var_P_X_lst into var_proj_matrix_lst for clearity."""
-var_proj_matrix_lst = []
-var_orth_matrix_lst = []
-P_C_lst = []
-U_C_lst = []
 
-
-"""run get_projection_matrices(X, n_fratures) to get the projection matrices"""
-proj_matrix, orth_matrix = get_projection_matrices(X, n_features)
-
-for lambda_val in lambda_val_lst:
-    var_proj_matrix, var_orth_matrix, P_C, U_C = compute_variance_wrt_theta_init(
-        proj_matrix, orth_matrix,
-        n_features, output_features,
-        theta_0_num, random_state,lambda_val, dataset, max_iterations
-    )
-    P_C_lst.append(P_C)
-    U_C_lst.append(U_C)
-
-    """Change name from var_P_X & var_U_X into var_proj_matrix & var_orth_matrix"""
-
-    var_proj_matrix_lst.append(var_proj_matrix)
-    var_orth_matrix_lst.append(var_orth_matrix)
-
-
+var_proj_matrix_lst, var_orth_matrix_lst, P_C_lst, U_C_lst = compute_variance_analysis(
+    X, 
+    n_features,output_features,
+    lambda_val_lst,
+    theta_0_num, random_state,dataset, max_iterations 
+)
 #plot two lines
 plt.figure(figsize=(10, 6))
 plt.plot(lambda_val_lst, var_proj_matrix_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
@@ -211,11 +238,3 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 os.makedirs("plots/pytorch_plot/", exist_ok=True)
 plt.savefig(f'plots/pytorch_plot/variance_ridge_lambda.png', dpi=300, bbox_inches='tight')
-# Display the plot
-
-
-
-if __name__ == "__main__":
-    # set random seeds for reproductibility
-    random_state = 42
-    set_random_seeds(random_state)
