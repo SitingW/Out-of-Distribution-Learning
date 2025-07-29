@@ -123,8 +123,6 @@ def compute_variance_wrt_theta_init(
 
         trainer = train_single_model(n_features, output_features, theta_0, learning_rate, lambda_val, dataset, max_iterations)
 
-        
-
         """
         change name from pred_P_X into pred_proj_matrix for clarity.
         change name from pred_U_X into pred_proj_matrix for clarity.

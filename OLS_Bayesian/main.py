@@ -8,10 +8,10 @@ import sys
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from data_generator import DataGenerator
-from gradient_descent import GradientDescent
-from init_parameter import InitParameter
-from closed_form_solver import ClosedFormSolver
+from src.data_generator import DataGenerator
+from src.gradient_descent import GradientDescent
+from src.init_parameter import InitParameter
+from src.closed_form_solver import ClosedFormSolver
 
 
 
@@ -34,9 +34,19 @@ output_features = 1
 data_gen = DataGenerator(random_state = random_state)
 X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
 
+def projection_matrix_qr(X:np.ndarray) -> np.ndarray:
+    Q, R = np.linalg.qr(X)
+    return Q @ Q.T
 
-
-def inference(theta_0_array,input_x, X, Y, lambda_val, max_iterations= max_iterations, alpha_val= 0.5, learning_rate=0.01 ):
+def inference(
+    theta_0_array: np.ndarray,
+    input_x: np.ndarray,
+    X: np.ndarray, Y: np.ndarray, 
+    lambda_val: float, 
+    max_iterations: int, 
+    alpha_val= 0.5, 
+    learning_rate=0.01
+) -> np.floating:
     """
 Run gradient descent for multiple initial theta values sequentially
 
@@ -52,14 +62,14 @@ Args:
         #print("Theta 0 shape: ", theta_0.shape)
         #input,X_matrix, y_vector, lambda_val,theta_0_array, max_iterations, alpha, eta
         gd = GradientDescent( input_x, 
-                             X, Y,
-                             theta_0, 
-                             max_iterations, 
-                             alpha_val, 
-                             learning_rate, 
-                             lambda_val,
-                             reduction
-                             )
+            X, Y,
+            theta_0, 
+            max_iterations, 
+            alpha_val, 
+            learning_rate, 
+            lambda_val,
+            reduction
+        )
         f_out_lst.append(gd.gradient_output())
         #print(gd.gradient_output())
     #check the variance of the output
@@ -78,9 +88,7 @@ if __name__ == "__main__":
     #seperate the subspaces
     #I_d - X(X^TX)^{-1}X^T
     #use scipy svd get two subspaces
-    def projection_matrix_qr(X):
-        Q, R = np.linalg.qr(X)
-        return Q @ Q.T
+    
     P = projection_matrix_qr (X.T)
     #print("Projection matrix P shape: ", P.shape)
     U = np.eye(n_features) - P
