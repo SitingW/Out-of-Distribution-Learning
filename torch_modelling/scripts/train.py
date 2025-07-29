@@ -42,6 +42,22 @@ def generate_data(n_samples: int, n_features: int, random_state: int)-> Tuple[Li
     dataset = LinearDataset(X, y)
     return dataset, X, y
 
+def get_projection_matrices (X: np.ndarray, n_features: int) -> Tuple[np.ndarray , np.ndarray]:
+    """
+    Create projection matrix and orthogonal matrix.
+    Function is borrowed from numpy codebase.
+    """
+    #Changed the name from matrices from P, U into proj_matrix and orth_matrix for clearity.
+    #Some issue might be that I'm reusing the name of proj_matrix and orth_matrix, which might leads to trouble in the future.
+    proj_matrix = projection_matrix_qr (X.T)
+    #print("Projection matrix P shape: ", P.shape)
+    orth_matrix = np.eye(n_features) - P
+    ones = np.ones(n_features) # Create a vector of ones with the same dimension as d
+    proj_matrix = proj_matrix @ ones
+    orth_matrix = orth_matrix @ ones
+    return proj_matrix, orth_matrix
+"""define random state"""
+random_state = 42
 '''defeine hyperparameters'''
 learning_rate = 0.001
 lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
@@ -59,21 +75,27 @@ X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_
 dataset = LinearDataset(X, y)
 
 '''this is for each lambda value. I'm going to put this into a function? no let me put it into a for loop'''
-var_P_X_lst = []
-var_U_X_lst = []
+"""change name from var_P_X_lst into var_proj_matrix_lst for clearity."""
+var_proj_matrix_lst = []
+var_orth_matrix_lst = []
 
 P_C_lst = []
 U_C_lst = []
 
-#create x_p and x_u as ols_bayesian
-#use scipy svd get two subspaces
+
+"""run get_projection_matrices(X, n_fratures) to get the projection matrices"""
+proj_matrix, orth_matrix = get_projection_matrices(X, n_features)
 
 for lambda_val in lambda_val_lst:
     '''theta_0 generation'''
     init_param = InitParameter(dim = n_features, n_samples = theta_0_num, random_state = random_state)
     theta_0_array = init_param.initialization()
-    P_X_lst = []
-    U_X_lst = []
+    """
+    Change name from P_X_lst into proj_matrix_lst.
+    Change name from U_X_lst into orth_matrix_lst.
+    """
+    proj_matrix_lst = []
+    orth_matrix_lst = []
     #initial the P_X and U_X stack
    
     for j in range (theta_0_num):
@@ -92,23 +114,17 @@ for lambda_val in lambda_val_lst:
         #I should input dataset instead of X and y here
         trainer.train(dataset.X, dataset.y, epochs = max_iterations)
 
-
-        def get_projection_matrices (X: np.ndarray, n_features: int) -> Tuple[np.ndarray , np.ndarray]:
-            """create projection matrix and orthogonal matrix"""
-            P = projection_matrix_qr (X.T)
-            #print("Projection matrix P shape: ", P.shape)
-            U = np.eye(n_features) - P
-            ones = np.ones(n_features) # Create a vector of ones with the same dimension as d
-            P_X = P @ ones
-            U_X = U @ ones
-            return P_X, U_X
-
-        pred_P_X = trainer.iterative_mean(P_X, max_iterations, alpha_val)
-        pred_U_X = trainer.iterative_mean(U_X, max_iterations, alpha_val)
+        """
+        change name from pred_P_X into pred_proj_matrix for clarity.
+        change name from pred_U_X into pred_proj_matrix for clarity.
+        """
+        pred_proj_matrix = trainer.iterative_mean(proj_matrix, max_iterations, alpha_val)
+        pred_orth_matrix = trainer.iterative_mean(orth_matrix, max_iterations, alpha_val)
         #print(pred_P_X)
         #print(pred_U_X)
-        P_X_lst.append(pred_P_X)
-        U_X_lst.append(pred_U_X)
+        
+        proj_matrix_lst.append(pred_proj_matrix)
+        orth_matrix_lst.append(pred_orth_matrix)
     '''closed form solutions'''
     CLOSED_FORM_CONFIG = {
                     'X': dataset.X,           # np.ndarray of shape (n_samples, n_features)
@@ -122,19 +138,21 @@ for lambda_val in lambda_val_lst:
     P_C_lst.append(P_C)
     U_C_lst.append(U_C)
 
-    P_X_stack = torch.stack(P_X_lst, dim=0)
-    U_X_stack = torch.stack(U_X_lst, dim=0)
-    var_P_X = torch.var(P_X_stack, dim=0)
-    var_U_X = torch.var(U_X_stack, dim=0)
-    var_P_X_lst.append(var_P_X)
-    var_U_X_lst.append(var_U_X)
+    """Change name from P_X_stack & U_X_stack into proj_matrix_stack & orth_matrix_stack"""
+    proj_matrix_stack = torch.stack(proj_matrix_lst, dim=0)
+    orth_matrix_stack = torch.stack(orth_matrix_lst, dim=0)
+    """Change name from var_P_X & var_U_X into var_proj_matrix & var_orth_matrix"""
+    var_proj_matrix = torch.var(proj_matrix_stack, dim=0)
+    var_orth_matrix = torch.var(orth_matrix_stack, dim=0)
+    var_proj_matrix_lst.append(var_proj_matrix)
+    var_orth_matrix_lst.append(var_orth_matrix)
 
 
 #plot two lines
 plt.figure(figsize=(10, 6))
-plt.plot(lambda_val_lst, var_P_X_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
+plt.plot(lambda_val_lst, var_proj_matrix_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
 plt.plot(lambda_val_lst, P_C_lst, marker='^', linewidth=2, linestyle = '--', markersize=6, label='Variance from projection subspace (closed form)')
-plt.plot(lambda_val_lst, var_U_X_lst, marker='s', linewidth=2,alpha =0.5, markersize=6, label='Variance from orthogonal subspace')
+plt.plot(lambda_val_lst, var_orth_matrix_lst, marker='s', linewidth=2,alpha =0.5, markersize=6, label='Variance from orthogonal subspace')
 plt.plot(lambda_val_lst, U_C_lst, marker='d', linewidth=2, linestyle = '--', markersize=6, label='Variance from orthogonal subspace (closed form)')
 
 # Customize the plot
