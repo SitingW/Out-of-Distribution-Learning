@@ -18,7 +18,7 @@ import os
 print("Torch in test file:", torch)
 print("Torch version:", torch.__version__)
 
-from linear_model import LinearModel
+from src.models.linear_model import LinearModel
 
 
 
