@@ -19,7 +19,8 @@ theta_star = np.ones(d)
 class DataGenerator:
     def __init__(self, random_state = None):
         if random_state:
-            np.random.seed(random_state)
+            # Use proper random state handling with Generator
+            self.rng = np.random.Generator(np.random.PCG64(random_state))
 
     def linear_regression_data (self, n_samples, n_features):
         X = np.random.randn(n_samples, n_features)
@@ -28,11 +29,16 @@ class DataGenerator:
         return X, y, true_theta
 
 class GradientDescent:
-    def __init__(self,input,X_matrix, y_vector, lambda_val,theta_0, max_iterations, alpha, eta):
+    """
+    Args:
+        lambda_val: regularization weight
+        alpha: iterative mean weight
+        eta: (removed from the class, an unnecessary hyperparameter)
+    """
+    def __init__(self,input,X_matrix, y_vector, lambda_val,theta_0, max_iterations, alpha):
         self.lambda_val = lambda_val
         self.max_iterations = max_iterations
         self.alpha = alpha
-        self.eta =eta
         self.theta_history = [theta_0]
         self.f_bar_lst = [input @ theta_0]
         self.input = input
@@ -48,7 +54,7 @@ class GradientDescent:
     #change this part into computing bunch gradients instead of one
     def gradient_compute(self, x, y):
 
-        theta_new = self.theta_history[-1] - self.eta * np.mean(x.T @ (self.predict(x , self.theta_history[-1]) - y) )
+        theta_new = self.theta_history[-1] - self.lambda_val * np.mean(x.T @ (self.predict(x , self.theta_history[-1]) - y) )
         self.theta_history.append(theta_new)
         return theta_new
     

@@ -13,4 +13,5 @@ from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass
 import json
 
-np.random.seed(42)
+#Remove random seed from global. Handle random state in class instead.
+#np.random.seed(42)

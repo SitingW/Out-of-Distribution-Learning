@@ -36,9 +36,16 @@ output_features = 1
 
 #random_state = 42
 def set_random_seeds(random_state: int) -> None:
-    """set random seed for reproducibility"""
+    """
+    Set random seed for reproducibility across Numpy and PyTorch.
+    Why? (or how?) ensures all random operations (init_parameters, data_generator, etc.) to keep consistency across runs.
+    """
     np.random.seed(random_state)
     torch.manual_seed(random_state)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(random_state)
+        torch.cuda.manual_seed_all(random_state)  # For multi-GPU setups
+
 
 
 """define data generation"""
@@ -80,7 +87,7 @@ def train_single_model(n_features: int, output_features: int, theta_0: float, le
         "model" : model,
         "learning_rate" : learning_rate,
         "lambda_val" :lambda_val,
-        "loss_fn" : nn.MSELoss(reduction= 'sum')
+        "loss_fn" : nn.MSELoss(reduction= 'mean')
     }
 
     trainer = Trainer(gd_config)
@@ -209,30 +216,30 @@ if __name__ == "__main__":
 
 
     """Generate sparse data"""
-data_gen = DataGenerator(random_state = random_state)
-X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
-dataset = LinearDataset(X, y)
+    data_gen = DataGenerator(random_state = random_state)
+    X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
+    dataset = LinearDataset(X, y)
 
 
-var_proj_matrix_lst, var_orth_matrix_lst, P_C_lst, U_C_lst = compute_variance_analysis(
-    X, 
-    n_features,output_features,
-    lambda_val_lst,
-    theta_0_num, random_state,dataset, max_iterations 
-)
-#plot two lines
-plt.figure(figsize=(10, 6))
-plt.plot(lambda_val_lst, var_proj_matrix_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
-plt.plot(lambda_val_lst, P_C_lst, marker='^', linewidth=2, linestyle = '--', markersize=6, label='Variance from projection subspace (closed form)')
-plt.plot(lambda_val_lst, var_orth_matrix_lst, marker='s', linewidth=2,alpha =0.5, markersize=6, label='Variance from orthogonal subspace')
-plt.plot(lambda_val_lst, U_C_lst, marker='d', linewidth=2, linestyle = '--', markersize=6, label='Variance from orthogonal subspace (closed form)')
+    var_proj_matrix_lst, var_orth_matrix_lst, P_C_lst, U_C_lst = compute_variance_analysis(
+        X, 
+        n_features,output_features,
+        lambda_val_lst,
+        theta_0_num, random_state,dataset, max_iterations 
+    )
+    #plot two lines
+    plt.figure(figsize=(10, 6))
+    plt.plot(lambda_val_lst, var_proj_matrix_lst, marker='o' ,linewidth=2, markersize=6, alpha = 0.5, label='Variance from projection subspace')
+    plt.plot(lambda_val_lst, P_C_lst, marker='^', linewidth=2, linestyle = '--', markersize=6, label='Variance from projection subspace (closed form)')
+    plt.plot(lambda_val_lst, var_orth_matrix_lst, marker='s', linewidth=2,alpha =0.5, markersize=6, label='Variance from orthogonal subspace')
+    plt.plot(lambda_val_lst, U_C_lst, marker='d', linewidth=2, linestyle = '--', markersize=6, label='Variance from orthogonal subspace (closed form)')
 
-# Customize the plot
-plt.xlabel('value of lambda')
-plt.ylabel('Variance')
-plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val})")
-plt.legend()
-plt.grid(True, alpha=0.3)
-plt.tight_layout()
-os.makedirs("plots/pytorch_plot/", exist_ok=True)
-plt.savefig(f'plots/pytorch_plot/variance_ridge_lambda.png', dpi=300, bbox_inches='tight')
+    # Customize the plot
+    plt.xlabel('value of lambda')
+    plt.ylabel('Variance')
+    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val})")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    os.makedirs("plots/pytorch_plot/", exist_ok=True)
+    plt.savefig(f'plots/pytorch_plot/variance_ridge_lambda.png', dpi=300, bbox_inches='tight')
