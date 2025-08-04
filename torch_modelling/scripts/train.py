@@ -20,18 +20,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from typing import List, Tuple, Dict, Any
 
-"""define random state"""
-random_state = 42
-'''defeine hyperparameters'''
-learning_rate = 0.001
-lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
-#lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
-max_iterations = 100
-theta_0_num = 50
-alpha_val = 0.5
-n_samples = 50
-n_features = 100
-output_features = 1
+
 
 
 #random_state = 42
@@ -50,7 +39,7 @@ def set_random_seeds(random_state: int) -> None:
 
 """define data generation"""
 def generate_data(n_samples: int, n_features: int, random_state: int)-> Tuple[LinearDataset, np.ndarray, np.ndarray]:
-    data_gen = DataGenerator(random_state = random_state)
+    data_gen = DataGenerator(random_state = 40)
     X, y, _ = data_gen.get_linear_regression_data(n_samples=n_samples, n_features=n_features)
     dataset = LinearDataset(X, y)
     return dataset, X, y
@@ -77,7 +66,7 @@ def get_projection_vectors (X: np.ndarray, n_features: int) -> Tuple[np.ndarray 
 
 
 #define single run training for reuse
-def train_single_model(n_features: int, output_features: int, theta_0: float, learning_rate: float, lambda_val: float, dataset: LinearDataset, max_iterations: int) -> Trainer:
+def train_single_model(n_features: int, output_features: int, theta_0: float, learning_rate: float, lambda_val: float, dataset: LinearDataset, max_iterations: int, reduction: str) -> Trainer:
     """
     Train a single ridge regression model w.r.t. a special initialization parameter (theta_0), learning rate (learning_rate), and a L2 regularization term (lambda_val).
     """
@@ -87,7 +76,7 @@ def train_single_model(n_features: int, output_features: int, theta_0: float, le
         "model" : model,
         "learning_rate" : learning_rate,
         "lambda_val" :lambda_val,
-        "loss_fn" : nn.MSELoss(reduction= 'mean')
+        "loss_fn" : nn.MSELoss(reduction= reduction)
     }
 
     trainer = Trainer(gd_config)
@@ -107,7 +96,8 @@ def compute_variance_wrt_theta_init(
         random_state: int, 
         lambda_val: float,
         dataset: LinearDataset, 
-        max_iterations: int
+        max_iterations: int,
+        reduction: str
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Compute both the iterative and closed-form variance of precition w.r.t. one set of hyperparameters.
@@ -115,7 +105,7 @@ def compute_variance_wrt_theta_init(
     trainer.iterative_mean will make sure convert every np ndarray into torch tensor.
     for each initial parameter, call the trainer to train the model. With the given input (pred_matrix, otrh_matrix), compute the prediction values.
     """
-    init_param = InitParameter(dim = n_features, n_samples = theta_0_num, random_state = random_state)
+    init_param = InitParameter(dim = n_features, n_samples = theta_0_num, random_state = 41)
     theta_0_array = init_param.initialization()
     """
     Change name from P_X_lst into proj_matrix_lst.
@@ -128,7 +118,7 @@ def compute_variance_wrt_theta_init(
     for j in range (theta_0_num):
         theta_0 = theta_0_array[:, j]
 
-        trainer = train_single_model(n_features, output_features, theta_0, learning_rate, lambda_val, dataset, max_iterations)
+        trainer = train_single_model(n_features, output_features, theta_0, learning_rate, lambda_val, dataset, max_iterations, reduction)
 
         """
         change name from pred_P_X into pred_proj_matrix for clarity.
@@ -171,7 +161,8 @@ def compute_variance_analysis (
         theta_0_num: float,
         random_state: int,
         dataset: LinearDataset,
-        max_iterations: float
+        max_iterations: float,
+        reduction: str
         ) -> Tuple[List[torch.Tensor], List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
     """
     Compute variance analysis for projection space (proj_matrix) and orthogonal space (orth_matrix). It:
@@ -194,7 +185,8 @@ def compute_variance_analysis (
         var_proj_matrix, var_orth_matrix, P_C, U_C = compute_variance_wrt_theta_init(
             proj_vec, orth_vec,
             n_features, output_features,
-            theta_0_num, random_state,lambda_val, dataset, max_iterations
+            theta_0_num, random_state,lambda_val, dataset, max_iterations,
+            reduction
         )
         P_C_lst.append(P_C)
         U_C_lst.append(U_C)
@@ -211,8 +203,19 @@ def compute_variance_analysis (
 
 if __name__ == "__main__":
     # set random seeds for reproductibility
+    """define random state"""
     random_state = 42
-    set_random_seeds(random_state)
+    '''defeine hyperparameters'''
+    learning_rate = 0.001
+    lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5, 10] #list of lambda values
+    #lambda_val_lst = [0, 0.001, 0.01, 0.1, 1,2, 5,10, 50, 100] #list of lambda values
+    max_iterations = 100
+    theta_0_num = 50
+    alpha_val = 0.5
+    n_samples = 50
+    n_features = 100
+    output_features = 1
+    reduction = "sum"
 
 
     """Generate sparse data"""
@@ -225,7 +228,8 @@ if __name__ == "__main__":
         X, 
         n_features,output_features,
         lambda_val_lst,
-        theta_0_num, random_state,dataset, max_iterations 
+        theta_0_num, random_state,dataset, max_iterations,
+        reduction
     )
     #plot two lines
     plt.figure(figsize=(10, 6))
@@ -237,7 +241,7 @@ if __name__ == "__main__":
     # Customize the plot
     plt.xlabel('value of lambda')
     plt.ylabel('Variance')
-    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val})")
+    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val}, reduction = {reduction})")
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
