@@ -11,6 +11,6 @@ virtualenv --no-download $SLURM_TMPDIR/env
 source $SLURM_TMPDIR/env/bin/activate
 pip install --no-index --upgrade pip
 
-pip install --no-index -r ~/scratch/Out-Of-Distribution-Learning/requirements.txt
+pip install --no-index -r /home/siting/scratch/Out-of-Distribution-Learning/requirements.txt
 
 python ...
