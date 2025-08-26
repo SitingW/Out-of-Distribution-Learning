@@ -105,3 +105,7 @@ output/
 filename.tex
 header.tex
 filename.synctex.gz
+
+# Ignore outputs and errors from scripts
+*.out
+*.err
