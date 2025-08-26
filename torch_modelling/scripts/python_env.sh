@@ -1,5 +1,5 @@
 #!/bin/bash
-# SBATCH --account=def-someuser (what is the account I should use?)
+# SBATCH --account=def-someuser (what account I should use?)
 #SBATCH --mem-per-cpu=1500M      # increase as needed
 #SBATCH --time=1:00:00
 #SBATCH --job-name=python_env
