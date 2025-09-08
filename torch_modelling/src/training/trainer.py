@@ -25,7 +25,7 @@ class Trainer:
         self.lr = config.get('lr', 0.01)
         self.loss_fn = config.get( "loss_fn", nn.MSELoss(reduction = 'mean')) #aligned with our numpy models
         # Use SGD optimizer instead of manual updates
-        self.optimizer = optim.SGD(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = config.get("optimizer", optim.SGD(self.model.parameters(), lr=self.learning_rate))
 
         # Store initial parameters
         self.initial_params = {name: param.clone().detach() 

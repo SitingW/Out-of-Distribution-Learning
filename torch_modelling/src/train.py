@@ -16,7 +16,9 @@ from src.data.dataset import LinearDataset
 from src.data.data_generator import DataGenerator
 from src.training.trainer import Trainer
 from src.models.closed_form_solver import ClosedFormSolver
+from src import optim
 from torch.utils.data import DataLoader
+
 import numpy as np
 from typing import List, Tuple, Dict, Any
 
@@ -76,7 +78,8 @@ def train_single_model(n_features: int, output_features: int, theta_0: float, le
         "model" : model,
         "learning_rate" : learning_rate,
         "lambda_val" :lambda_val,
-        "loss_fn" : nn.MSELoss(reduction= reduction)
+        "loss_fn" : nn.MSELoss(reduction= reduction),
+        "optimizer" : optim.SGLD(model.parameters(), lr=learning_rate)
     }
 
     trainer = Trainer(gd_config)
@@ -241,7 +244,7 @@ if __name__ == "__main__":
     # Customize the plot
     plt.xlabel('value of lambda')
     plt.ylabel('Variance')
-    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val}, reduction = {reduction})")
+    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val}, reduction = {reduction}, optimizer = SGLD)") 
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
