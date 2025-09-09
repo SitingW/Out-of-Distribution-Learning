@@ -79,7 +79,7 @@ def train_single_model(n_features: int, output_features: int, theta_0: float, le
         "learning_rate" : learning_rate,
         "lambda_val" :lambda_val,
         "loss_fn" : nn.MSELoss(reduction= reduction),
-        "optimizer" : optim.SGLD(model.parameters(), lr=learning_rate)
+        "optimizer" : optim.SGHMC(model.parameters(), lr=learning_rate)
     }
 
     trainer = Trainer(gd_config)
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     # Customize the plot
     plt.xlabel('value of lambda')
     plt.ylabel('Variance')
-    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val}, reduction = {reduction}, optimizer = SGLD)") 
+    plt.title(f"Variance vs lambda value (d = {n_features}, n = {n_samples}, initial_sample = {theta_0_num}, learning rate = {learning_rate}, alpha = {alpha_val}, reduction = {reduction}, optimizer = SGHMC)") 
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
